@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy: Enhances security by restricting resource loading to trusted domains. -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+        font-src 'self' https://fonts.gstatic.com; 
+        img-src 'self' https: data:;">
+    <title>Cihaz Taksit Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Using Poppins font for a modern, clean look similar to Turkcell's branding -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset for cross-browser consistency */
+        html {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body, h1, h2, p, ul, li {
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+        }
+        /* Main Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4; /* Lighter gray background */
+        }
+        .sidebar-icon {
+            width: 24px;
+            height: 24px;
+        }
+        /* Turkcell yellow for active links */
+        .nav-link.active {
+            background-color: #FFC900;
+            color: #000000;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .installment-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .installment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.07);
+        }
+        /* Overlay for mobile menu */
+        #menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 15; /* Below sidebar, above content */
+        }
+        #menu-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div id="app-container" class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-72 bg-white shadow-lg p-4 flex-shrink-0 transition-transform duration-300 -translate-x-full md:translate-x-0 fixed md:relative h-full z-20 overflow-y-auto">
+            <div class="flex items-center mb-8">
+                <!-- Using a darker blue for the header text to align with Turkcell's corporate colors -->
+                <span class="text-3xl font-bold text-blue-900">Cihazlar</span>
+                <span class="ml-2 text-sm font-semibold text-gray-500">Taksit Planları</span>
+            </div>
+            <nav class="space-y-2">
+                <a href="#anasayfa" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200 active">
+                    <span class="sidebar-icon mr-3">🏠</span> Ana Sayfa
+                </a>
+                <a href="#iphone13" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Iphone 13 128 GB
+                </a>
+                <a href="#iphone16" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Iphone 16 128 GB
+                </a>
+                <a href="#iphone16e" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Iphone 16E 128 GB
+                </a>
+                <a href="#iphone16pro256" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Iphone 16 Pro 256 GB
+                </a>
+                <a href="#iphone16pro128" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Iphone 16 Pro 128 GB
+                </a>
+                <a href="#s25ultra" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Samsung S25 Ultra 512 GB
+                </a>
+                <a href="#s25" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-200">
+                    <span class="sidebar-icon mr-3">📱</span> Samsung S25 256 GB
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Mobile Menu Overlay -->
+        <div id="menu-overlay"></div>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-md shadow-md">
+            <span id="menu-icon">☰</span>
+        </button>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+            
+            <!-- Section for Homepage -->
+            <section id="anasayfa" class="content-section active">
+                <div class="text-center">
+                    <img src="https://i.imgur.com/r7o2y3q.png" alt="Turkcell Logo" class="mx-auto mb-8 w-48 h-auto" onerror="this.onerror=null;this.src='https://placehold.co/325x244/FFC900/000000?text=TURKCELL';">
+                    <h1 class="text-4xl font-bold mb-4 text-blue-900">Turkcell Kurumsal Cihaz Teklifleri</h1>
+                    <p class="text-lg text-gray-600 mb-12">Cihaz modelleri ve taksit seçeneklerini görmek için sol menüyü kullanabilirsiniz.</p>
+                    <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-yellow-400 inline-block">
+                        <h2 class="text-xl font-semibold text-gray-800">Kemal Kirazcı</h2>
+                        <p class="text-gray-600 mt-1">Turkcell Kurumsal Müşteri Temsilcisi</p>
+                        <!-- Using Turkcell's link blue color for contact info -->
+                        <p class="text-blue-600 font-bold text-lg mt-2">İrtibat: 0537 398 58 80</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Iphone 13 -->
+            <section id="iphone13" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Iphone 13 128 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">3 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">12,999 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">7,055 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">4,126 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">2,744 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">2,347 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Iphone 16 -->
+            <section id="iphone16" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Iphone 16 128 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">13,850 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">8,100 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">5,386 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">4,608 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Iphone 16E -->
+            <section id="iphone16e" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Iphone 16E 128 GB Taksit Seçenekleri</h1>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">3 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">16,666 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">10,096 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">5,290 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">3,518 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">3,010 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Iphone 16 Pro 256 GB -->
+            <section id="iphone16pro256" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Iphone 16 Pro 256 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">19,290 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">11,282 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">7,502 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">6,419 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Iphone 16 Pro 128 GB -->
+            <section id="iphone16pro128" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Iphone 16 Pro 128 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">18,118 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">11,282 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">7,047 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">6,029 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Samsung S25 Ultra -->
+            <section id="s25ultra" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Samsung S25 Ultra 512 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">3 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">34,149 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">18,534 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">10,840 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">7,208 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                     <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">6,167 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section for Samsung S25 -->
+            <section id="s25" class="content-section">
+                <h1 class="text-4xl font-bold mb-8 text-blue-900">Samsung S25 256 GB Taksit Seçenekleri</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">3 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">19,183 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">6 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">10,447 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">12 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">6,147 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                    <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">24 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">4,128 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                     <div class="installment-card bg-white p-6 rounded-xl shadow-md text-center">
+                        <p class="text-2xl font-bold text-blue-800">36 Ay</p>
+                        <p class="text-3xl font-semibold text-gray-700 mt-2">3,557 TL</p>
+                        <p class="text-sm text-gray-500 mt-1">aylık</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Navigation and UI Logic ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
+            const sidebar = document.getElementById('sidebar');
+            const menuOverlay = document.getElementById('menu-overlay');
+
+            function showSection(hash) {
+                const defaultHash = '#anasayfa';
+                const targetHash = hash || defaultHash;
+                
+                contentSections.forEach(section => section.classList.remove('active'));
+                navLinks.forEach(link => link.classList.remove('active'));
+
+                const activeSection = document.querySelector(targetHash);
+                const activeLink = document.querySelector(`a[href="${targetHash}"]`);
+
+                if (activeSection) activeSection.classList.add('active');
+                if (activeLink) activeLink.classList.add('active');
+            }
+
+            function closeMobileMenu() {
+                sidebar.classList.add('-translate-x-full');
+                menuOverlay.classList.remove('active');
+                menuIcon.innerHTML = '☰';
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetHash = this.getAttribute('href');
+                    if(window.location.hash !== targetHash) {
+                        history.pushState(null, null, targetHash);
+                    }
+                    showSection(targetHash);
+                    if (window.innerWidth < 768) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+            
+            window.addEventListener('popstate', () => showSection(window.location.hash));
+            showSection(window.location.hash);
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                menuOverlay.classList.toggle('active');
+                menuIcon.innerHTML = sidebar.classList.contains('-translate-x-full') ? '☰' : '✕';
+            });
+            
+            // Close mobile menu when overlay is clicked
+            menuOverlay.addEventListener('click', closeMobileMenu);
+        });
+    </script>
+</body>
+</html>
